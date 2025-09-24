@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoThreads</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; line-height: 1.6; background-color: #f2f2f2; }
+        a { text-decoration: none; color: #333; }
+
+        nav {
+            background-color: #4CAF50; color: white; padding: 10px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        nav .logo { font-size: 24px; font-weight: bold; }
+        nav ul { list-style: none; display: flex; margin: 0; padding: 0; }
+        nav ul li { margin-left: 20px; }
+        nav ul li a { color: white; font-weight: bold; }
+
+        section { padding: 40px 20px; text-align: center; }
+        section h2 { color: #4CAF50; }
+
+        .categories { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
+        .category-card {
+            background-color: white; padding: 10px; width: 220px; border-radius: 8px;
+            box-shadow: 0px 0px 5px rgba(0,0,0,0.2); transition: transform 0.2s; cursor: pointer;
+        }
+        .category-card img { width: 100%; height: 150px; border-radius: 8px; object-fit: cover; }
+        .category-card h3 { margin: 10px 0 5px 0; }
+        .category-card p { font-size: 14px; color: #555; }
+
+        .btn {
+            display: inline-block; margin-top: 10px; padding: 10px 20px;
+            background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;
+        }
+        .btn:hover { background-color: #45a049; }
+
+        footer { background-color: #333; color: white; padding: 30px 20px; text-align: center; }
+        footer a { color: #4CAF50; }
+
+        form {
+            background-color: white; padding: 20px; margin: 20px auto; max-width: 400px;
+            border-radius: 8px; box-shadow: 0px 0px 5px rgba(0,0,0,0.2);
+        }
+        form input, form textarea {
+            width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #ccc;
+        }
+
+        .product-list { display: none; margin-top: 20px; }
+        .product-list ul { list-style: none; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        .product-list li { background: #fff; padding: 10px; margin: 5px 0; border-radius: 5px; width: 150px; text-align: center; box-shadow: 0px 0px 5px rgba(0,0,0,0.2); }
+        .product-list li img { width: 100%; height: 100px; object-fit: cover; border-radius: 5px; }
+        .product-list li p { margin-top: 5px; font-size: 14px; color: #555; }
+
+        @media(max-width: 600px){ .categories { flex-direction: column; align-items: center; } }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="logo">EcoThreads</div>
+        <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#pickup">Schedule Pickup</a></li>
+            <li><a href="#products">Buy Products</a></li>
+            <li><a href="#contact">Contact Us</a></li>
+        </ul>
+    </nav>
+
+    <!-- Home Section -->
+    <section id="home">
+        <h1>Welcome to EcoThreads</h1>
+        <p>Your one-stop solution for sustainable and upcycled products.</p>
+    </section>
+
+    <!-- Schedule Pickup Section -->
+    <section id="pickup">
+        <h2>Schedule a Pickup</h2>
+        <p>We collect old clothes and materials for recycling/upcycling.</p>
+        <form id="pickupForm">
+            <input type="text" placeholder="Your Name" required>
+            <input type="email" placeholder="Your Email" required>
+            <textarea placeholder="Pickup Details" rows="4" required></textarea>
+            <button type="submit" class="btn">Submit</button>
+        </form>
+    </section>
+
+    <!-- Buy Products Section -->
+    <section id="products">
+        <h2>Buy Recycled Products</h2>
+        <div class="categories">
+            <div class="category-card" onclick="showProducts('Home Décors')">
+                <img src="home_decor.jpg" alt="Home Décors">
+                <h3>Home Décors</h3>
+                <p>Eco-friendly decorations for your home.</p>
+            </div>
+            <div class="category-card" onclick="showProducts('Bags & Accessories')">
+                <img src="bag_accessories.jpg" alt="Bags & Accessories">
+                <h3>Bags & Accessories</h3>
+                <p>Upcycled bags, wallets, and more.</p>
+            </div>
+            <div class="category-card" onclick="showProducts('Upcycled Clothing')">
+                <img src="upcycled_clothing.jpg" alt="Upcycled Clothing">
+                <h3>Upcycled Clothing</h3>
+                <p>Trendy fashion made from recycled materials.</p>
+            </div>
+            <div class="category-card" onclick="showProducts('More Products')">
+                <img src="more_products.jpg" alt="More Products">
+                <h3>More Products</h3>
+                <p>Other sustainable items you’ll love.</p>
+            </div>
+        </div>
+
+        <diiv classs="product-list" id="productList">
+            <h3 id="productTitle"></h3>
+            <ul id="productsUl"></ul>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <footer id="contact">
+        <h2>Contact Us</h2>
+        <p>Email: <a href="mailto:contact@ecothreads.com">contact@ecothreads.com</a></p>
+        <p>Phone: +91 9876543210</p>
+        <p>Address: 123 Eco Street, Sustainability City</p>
+    </footer>
+
+    <script>
+        // Schedule Pickup Form
+        const form = document.getElementById('pickupForm');
+        form.addEventListener('submit', function(e){
+            e.preventDefault();
+            alert('Thank you! Your pickup request has been submitted.');
+            form.reset();
+        });
+
+        // Product List with Images
+        const productsData = {
+            "Home Décors": [
+                {name: "Recycled cloth Frames", img: "prod1.jpg"},
+                {name: "fabric jewellery", img: "prod2.jpg"},
+                {name: "curtains and wall hangings", img: "prod3.jpg"}
+            ],
+            "Bags & Accessories": [
+                {name: "Upcycled Tote Bag", img: "prod4.webp"},
+                {name: "Wallet from Fabric Scraps", img: "prod5.webp"},
+                {name: "keychains", img: "prod6.webp"}
+            ],
+            "Upcycled Clothing": [
+                {name: "Shirts from Old Fabrics", img: "prod7.jpg"},
+                {name: "Patchwork Jackets", img: "prod8.jpg"},
+                {name: "Denim Upcycled Jeans", img: "prod91.jpg"}
+            ],
+            "More Products": [
+                {name: "Recycled Notebooks", img: "product10.jpg"},
+                {name: "Plant Holders", img: "product11.jpg"},
+                {name: "Sustainable Statioonery", img: "prod12.jpg"}
+            ]
+        };
+
+        function showProducts(category){
+            const productListDiv = document.getElementById('productList');
+            const productTitle = document.getElementById('productTitle');
+            const productsUl = document.getElementById('productsUl');
+
+            productTitle.textContent = category;
+            productsUl.innerHTML = '';
+            productsData[category].forEach(item => {
+                const li = document.createElement('li');
+                li.innerHTML = `<img src="${item.img}" alt="${item.name}"><p>${item.name}</p>`;
+                productsUl.appendChild(li);
+            });
+
+            productListDiv.style.display = 'block';
+            productListDiv.scrollIntoView({behavior: "smooth"});
+        }
+    </script>
+
+</body>
+</html>

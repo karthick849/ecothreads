@@ -1,0 +1,232 @@
+import * as React from 'react';
+
+// Using lucide-react for icons, assuming it's available in the environment.
+// Fallback to inline SVG if needed.
+const Icon = ({ name, className }) => {
+  switch (name) {
+    case 'MapPin':
+      return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+          <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0z" />
+          <circle cx="12" cy="10" r="3" />
+        </svg>
+      );
+    case 'Send':
+      return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+          <path d="m22 2-7 20-4-9-9-4 20-7z" />
+          <path d="M22 2 11 13" />
+        </svg>
+      );
+    case 'Menu':
+      return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+          <line x1="4" x2="20" y1="12" y2="12" />
+          <line x1="4" x2="20" y1="6" y2="6" />
+          <line x1="4" x2="20" y1="18" y2="18" />
+        </svg>
+      );
+    default:
+      return null;
+  }
+};
+
+const Header = ({ onNavigate, currentPage }) => {
+  return (
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md p-4 flex justify-between items-center md:px-8 lg:px-12">
+      <div className="flex items-center space-x-2">
+        <Icon name="Menu" className="h-6 w-6 text-gray-700 md:hidden" />
+        <h1 className="text-xl md:text-2xl font-bold text-gray-800 tracking-tight font-inter">ClotheShare</h1>
+      </div>
+      <nav className="hidden md:flex space-x-4">
+        <button
+          onClick={() => onNavigate('dropoff')}
+          className={`px-4 py-2 rounded-xl text-lg font-medium transition-colors duration-200 ${
+            currentPage === 'dropoff' ? 'bg-indigo-600 text-white shadow-lg' : 'bg-transparent text-gray-700 hover:bg-gray-100'
+          }`}
+        >
+          Drop-off Locations
+        </button>
+        <button
+          onClick={() => onNavigate('sender')}
+          className={`px-4 py-2 rounded-xl text-lg font-medium transition-colors duration-200 ${
+            currentPage === 'sender' ? 'bg-indigo-600 text-white shadow-lg' : 'bg-transparent text-gray-700 hover:bg-gray-100'
+          }`}
+        >
+          Sender Form
+        </button>
+      </nav>
+    </header>
+  );
+};
+
+const PageContainer = ({ children }) => {
+  return (
+    <main className="min-h-screen bg-gray-50 pt-20 px-4 pb-8 md:pt-28 md:px-8 lg:px-16 flex flex-col items-center">
+      <div className="w-full max-w-4xl p-6 bg-white rounded-3xl shadow-xl border border-gray-100">
+        {children}
+      </div>
+    </main>
+  );
+};
+
+const DropoffLocations = () => {
+  // Mock data for drop-off locations
+  const locations = [
+    { name: 'Community Center', address: '123 Main St, Anytown, USA', hours: 'Mon-Fri: 9am-5pm' },
+    { name: 'Local Library', address: '456 Oak Ave, Anytown, USA', hours: 'Mon-Sat: 10am-6pm' },
+    { name: 'Eco-Friendly Hub', address: '789 Pine Ln, Anytown, USA', hours: 'Tue-Sun: 11am-7pm' },
+  ];
+
+  return (
+    <div>
+      <h2 className="text-3xl font-bold mb-4 text-gray-800 text-center font-inter">Find a Drop-off Location</h2>
+      <p className="text-center text-gray-600 mb-8 max-w-xl mx-auto">
+        These are designated spots where you can drop off your gently used clothes. Please check the hours before visiting.
+      </p>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {locations.map((location, index) => (
+          <div key={index} className="bg-gray-50 p-6 rounded-2xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200">
+            <h3 className="text-xl font-semibold text-gray-800 flex items-center mb-2">
+              <Icon name="MapPin" className="text-indigo-500 mr-2" />
+              {location.name}
+            </h3>
+            <p className="text-gray-600 text-sm mb-1">{location.address}</p>
+            <p className="text-gray-500 text-xs italic">{location.hours}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const SenderForm = () => {
+  const [formData, setFormData] = React.useState({ name: '', email: '', pickupAddress: '' });
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [isSubmitted, setIsSubmitted] = React.useState(false);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    console.log('Form submitted:', formData);
+    setIsSubmitting(false);
+    setIsSubmitted(true);
+  };
+
+  if (isSubmitted) {
+    return (
+      <div className="flex flex-col items-center justify-center p-8 text-center">
+        <Icon name="Send" className="text-green-500 h-16 w-16 mb-4 animate-bounce" />
+        <h2 className="text-2xl font-bold text-gray-800 mb-2 font-inter">Thank You!</h2>
+        <p className="text-gray-600">
+          Your request to send clothes has been received. We will contact you shortly to confirm details.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <h2 className="text-3xl font-bold mb-4 text-gray-800 text-center font-inter">Schedule a Pick-up</h2>
+      <p className="text-center text-gray-600 mb-8 max-w-xl mx-auto">
+        If you have a large donation, you can request a pick-up from your location. Please fill out the form below.
+      </p>
+      <form onSubmit={handleSubmit} className="space-y-6 max-w-lg mx-auto">
+        <div>
+          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+          />
+        </div>
+        <div>
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+          />
+        </div>
+        <div>
+          <label htmlFor="pickupAddress" className="block text-sm font-medium text-gray-700 mb-1">Pick-up Address</label>
+          <textarea
+            id="pickupAddress"
+            name="pickupAddress"
+            value={formData.pickupAddress}
+            onChange={handleChange}
+            required
+            rows="4"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+          ></textarea>
+        </div>
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full bg-indigo-600 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:bg-indigo-700 transition-colors duration-200 flex justify-center items-center"
+        >
+          {isSubmitting ? (
+            <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          ) : (
+            <>
+              <Icon name="Send" className="mr-2 h-5 w-5" />
+              Schedule Pick-up
+            </>
+          )}
+        </button>
+      </form>
+    </div>
+  );
+};
+
+function App() {
+  const [currentPage, setCurrentPage] = React.useState('dropoff');
+
+  const handleNavigate = (page) => {
+    setCurrentPage(page);
+  };
+
+  return (
+    <div className="relative min-h-screen bg-gray-50 font-sans antialiased">
+      <Header onNavigate={handleNavigate} currentPage={currentPage} />
+      <PageContainer>
+        {
+          (() => {
+            switch (currentPage) {
+              case 'dropoff':
+                return <DropoffLocations />;
+              case 'sender':
+                return <SenderForm />;
+              default:
+                return <DropoffLocations />;
+            }
+          })()
+        }
+      </PageContainer>
+      {/* Footer for a nice touch */}
+      <footer className="w-full bg-white shadow-inner p-4 text-center text-gray-500 text-sm mt-8">
+        © 2025 ClotheShare. All rights reserved.
+      </footer>
+    </div>
+  );
+}
+
+export default App;
