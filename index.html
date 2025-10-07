@@ -1,181 +1,466 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EcoThreads</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; line-height: 1.6; background-color: #f2f2f2; }
-        a { text-decoration: none; color: #333; }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>EcoThreads</title>
+  <style>
+    :root{
+      --green: #1e7a34;        /* Primary */
+      --green-2: #3ebd65;      /* Accent / Hover */
+      --bg: #f4f7f6;           /* Soft Background */
+      --muted: #555555;        /* Professional gray */
+      --card: #ffffff;          /* Card background */
+      --shadow: 0 10px 30px rgba(0,0,0,0.08); /* deeper shadow for depth */
+      --radius:14px;
+      --gap:12px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: linear-gradient(180deg,var(--bg),#ffffff 60%);
+      color:#222;
+      -webkit-font-smoothing:antialiased;
+    }
 
-        nav {
-            background-color: #4CAF50; color: white; padding: 10px 20px;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        nav .logo { font-size: 24px; font-weight: bold; }
-        nav ul { list-style: none; display: flex; margin: 0; padding: 0; }
-        nav ul li { margin-left: 20px; }
-        nav ul li a { color: white; font-weight: bold; }
+    /* NAV */
+    nav{
+      position:sticky; top:0;
+      background: linear-gradient(90deg,var(--green) 0%, var(--green-2) 100%);
+      color:white; padding:14px 24px; display:flex; align-items:center; justify-content:space-between;
+      z-index:50; box-shadow:0 6px 18px rgba(0,0,0,0.1);
+    }
+    .logo{font-weight:700; font-size:20px; letter-spacing:0.3px;}
+    nav ul{display:flex; gap:14px; margin:0; padding:0; list-style:none}
+    nav a{ color:white; font-weight:600; text-decoration:none; font-size:14px; transition: 0.2s }
+    nav a:hover{ opacity:0.85; }
+    @media(max-width:720px){ nav ul{display:none} }
 
-        section { padding: 40px 20px; text-align: center; }
-        section h2 { color: #4CAF50; }
+    /* LAYOUT */
+    .container{ max-width:1100px; margin:28px auto; padding:0 18px; }
 
-        .categories { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
-        .category-card {
-            background-color: white; padding: 10px; width: 220px; border-radius: 8px;
-            box-shadow: 0px 0px 5px rgba(0,0,0,0.2); transition: transform 0.2s; cursor: pointer;
-        }
-        .category-card img { width: 100%; height: 150px; border-radius: 8px; object-fit: cover; }
-        .category-card h3 { margin: 10px 0 5px 0; }
-        .category-card p { font-size: 14px; color: #555; }
+    .hero{
+      display:grid; grid-template-columns:1fr 420px; gap:22px; align-items:start; margin-bottom:18px;
+    }
+    @media(max-width:980px){ .hero{ grid-template-columns:1fr; } }
 
-        .btn {
-            display: inline-block; margin-top: 10px; padding: 10px 20px;
-            background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;
-        }
-        .btn:hover { background-color: #45a049; }
+    .hero-card{
+      background: linear-gradient(145deg,#ffffff,#f0fff5);
+      padding:28px; border-radius:var(--radius); box-shadow:0 10px 30px rgba(0,0,0,0.08);
+    }
+    .hero h1{ margin:0 0 10px 0; font-size:28px; color:var(--green) }
+    .hero p{ margin:0 0 14px 0; color:var(--muted); line-height:1.7 }
 
-        footer { background-color: #333; color: white; padding: 30px 20px; text-align: center; }
-        footer a { color: #4CAF50; }
+    .cta-row{ display:flex; gap:10px; margin-top:12px; flex-wrap:wrap; }
+    .btn{
+      background: linear-gradient(90deg,var(--green) 0%, var(--green-2) 100%);
+      border:none; color:white; padding:12px 18px; border-radius:10px; cursor:pointer; font-weight:700;
+      box-shadow: 0 8px 22px rgba(62,189,101,0.2);
+      transition: all 0.3s ease;
+    }
+    .btn:hover{
+      transform: translateY(-3px);
+      box-shadow: 0 12px 28px rgba(62,189,101,0.25);
+    }
+    .btn.secondary{
+      background:transparent; color:var(--green-2); border:2px solid rgba(62,189,101,0.3); box-shadow:none;
+    }
+    .btn.secondary:hover{
+      background: var(--green-2); color:white;
+    }
 
-        form {
-            background-color: white; padding: 20px; margin: 20px auto; max-width: 400px;
-            border-radius: 8px; box-shadow: 0px 0px 5px rgba(0,0,0,0.2);
-        }
-        form input, form textarea {
-            width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #ccc;
-        }
+    /* PICKUP PANEL: tabbed card */
+    .pickup-panel{
+      background: linear-gradient(145deg,#f9fff9,#ffffff);
+      padding:20px; border-radius:var(--radius); box-shadow:0 12px 28px rgba(0,0,0,0.08);
+      display:flex; flex-direction:column; gap:12px;
+    }
+    .pickup-header{ display:flex; flex-direction:column; gap:6px; }
+    .pickup-header h3{ margin:0; color:var(--green) }
+    .pickup-header small{ color:var(--muted) }
 
-        .product-list { display: none; margin-top: 20px; }
-        .product-list ul { list-style: none; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
-        .product-list li { background: #fff; padding: 10px; margin: 5px 0; border-radius: 5px; width: 150px; text-align: center; box-shadow: 0px 0px 5px rgba(0,0,0,0.2); }
-        .product-list li img { width: 100%; height: 100px; object-fit: cover; border-radius: 5px; }
-        .product-list li p { margin-top: 5px; font-size: 14px; color: #555; }
+    /* Tabs row */
+    .tab-row{ display:flex; gap:10px; margin-top:8px; }
+    .tab{
+      flex:1; text-align:center; padding:10px 12px; border-radius:12px; cursor:pointer; font-weight:700;
+      background:rgba(62,189,101,0.08); border:none; transition: all 0.25s;
+    }
+    .tab:hover{ background: rgba(62,189,101,0.15);}
+    .tab.active{
+      background: var(--green-2); color:white;
+      box-shadow:0 8px 20px rgba(62,189,101,0.25);
+    }
 
-        @media(max-width: 600px){ .categories { flex-direction: column; align-items: center; } }
-    </style>
+    /* form grid: two-column on wide, stacked on small */
+    .form-grid{
+      display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:8px;
+    }
+    @media(max-width:720px){ .form-grid{ grid-template-columns:1fr; } }
+
+    label{ font-size:13px; color:#333; display:block; margin-bottom:6px; font-weight:600; }
+    input[type="text"], input[type="email"], textarea{
+      padding:12px; border-radius:10px; border:1px solid #ddd; outline:none; font-size:14px; background:#fff;
+      transition: border 0.25s, box-shadow 0.25s;
+    }
+    input:focus, textarea:focus{
+      border:1px solid var(--green-2);
+      box-shadow:0 4px 12px rgba(62,189,101,0.15);
+    }
+    textarea{ min-height:96px; resize:vertical; grid-column:1 / -1; }
+
+    .form-actions{ display:flex; gap:10px; margin-top:8px; align-items:center; flex-wrap:wrap; }
+    .form-success{
+      display:none; padding:8px 10px; background:#e8f8ef; color:#15692a; border-radius:8px; font-weight:700;
+    }
+
+    /* PRODUCTS */
+    section#products{ margin-top:24px; padding-bottom:36px; }
+    .categories{
+      display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:16px;
+    }
+    .category-card{
+      background: linear-gradient(135deg,#ffffff,#f0fff5);
+      border-radius:var(--radius); overflow:hidden; box-shadow:0 10px 28px rgba(0,0,0,0.08);
+      cursor:pointer; display:flex; flex-direction:column; min-height:320px; transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .category-card:hover{
+      transform: translateY(-6px);
+      box-shadow: 0 16px 36px rgba(0,0,0,0.12);
+    }
+    .category-card img{ width:100%; height:170px; object-fit:cover; transition:transform .4s }
+    .category-body{ padding:12px; display:flex; flex-direction:column; justify-content:space-between; flex:1; }
+    .category-body h3{ color:var(--green); margin:6px 0 4px 0 }
+    .category-body p{ color:var(--muted); margin:0; font-size:14px }
+
+    .product-list{ display:none; margin-top:18px; }
+    .product-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:10px; margin-top:12px }
+    .product-card{
+      background: linear-gradient(145deg,#ffffff,#f9fff9);
+      padding:10px; border-radius:12px; text-align:center; box-shadow:0 8px 22px rgba(0,0,0,0.08); cursor:pointer;
+      transition: all 0.3s ease;
+    }
+    .product-card:hover{
+      transform: translateY(-4px);
+      box-shadow:0 14px 32px rgba(0,0,0,0.12);
+    }
+    .product-card img{ width:100%; height:100px; object-fit:cover; border-radius:8px }
+    .product-card p{ margin-top:8px; font-weight:700; color:#333; font-size:13px }
+
+    /* modal */
+    .modal{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,0.45); z-index:9999 }
+    .modal.open{ display:flex }
+    .modal-inner{
+      background: linear-gradient(145deg,#ffffff,#f0fff5); 
+      border-radius:var(--radius); 
+      padding:20px; 
+      display:flex; gap:16px; 
+      align-items:center; 
+      box-shadow:0 30px 80px rgba(0,0,0,0.35);
+    }
+    .modal-img{ width:46%; height:60vh; object-fit:cover; border-radius:8px }
+    .modal-info{ width:54% }
+    .modal-info h3{ margin:0 0 8px 0; color:var(--green) }
+    .close-btn{ background:#f1f1f1; border:none; padding:8px 10px; border-radius:8px; cursor:pointer }
+
+    footer{ background:#111; color:#e0e0e0; padding:32px 16px; text-align:center; margin-top:28px }
+    footer a{ color:#3ebd65; transition:0.2s; }
+    footer a:hover{ opacity:0.85; }
+
+  </style>
 </head>
 <body>
 
-    <!-- Navigation -->
-    <nav>
-        <div class="logo">EcoThreads</div>
-        <ul>
-            <li><a href="#home">Home</a></li>
-            <li><a href="#pickup">Schedule Pickup</a></li>
-            <li><a href="#products">Buy Products</a></li>
-            <li><a href="#contact">Contact Us</a></li>
-        </ul>
-    </nav>
+  <nav>
+    <div class="logo">EcoThreads</div>
+    <ul>
+      <li><a href="#home">Home</a></li>
+      <li><a href="#pickup">Schedule Pickup</a></li>
+      <li><a href="#products">Buy Products</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
 
-    <!-- Home Section -->
-    <section id="home">
-        <h1>Welcome to EcoThreads</h1>
-        <p>Your one-stop solution for sustainable and upcycled products.</p>
-    </section>
+  <main class="container">
+    <div class="hero">
+      <div class="hero-card">
+        <h1>EcoThreads — Sustainable, Upcycled, Stylish</h1>
+        <p>We turn pre-loved materials into useful, beautiful products — home decor, bags & accessories, and upcycled clothing. Click a category to explore our items.</p>
+        <div class="cta-row">
+          <button class="btn" onclick="document.querySelector('#tab-general').click()">Schedule a Pickup</button>
+          <button class="btn secondary" onclick="document.querySelector('#products').scrollIntoView({behavior:'smooth'})">Browse Products</button>
+        </div>
+      </div>
 
-    <!-- Schedule Pickup Section -->
-    <section id="pickup">
-        <h2>Schedule a Pickup</h2>
-        <p>We collect old clothes and materials for recycling/upcycling.</p>
-        <form id="pickupForm">
-            <input type="text" placeholder="Your Name" required>
-            <input type="email" placeholder="Your Email" required>
-            <textarea placeholder="Pickup Details" rows="4" required></textarea>
-            <button type="submit" class="btn">Submit</button>
-        </form>
-    </section>
-
-    <!-- Buy Products Section -->
-    <section id="products">
-        <h2>Buy Recycled Products</h2>
-        <div class="categories">
-            <div class="category-card" onclick="showProducts('Home Décors')">
-                <img src="home_decor.jpg" alt="Home Décors">
-                <h3>Home Décors</h3>
-                <p>Eco-friendly decorations for your home.</p>
-            </div>
-            <div class="category-card" onclick="showProducts('Bags & Accessories')">
-                <img src="bag_accessories.jpg" alt="Bags & Accessories">
-                <h3>Bags & Accessories</h3>
-                <p>Upcycled bags, wallets, and more.</p>
-            </div>
-            <div class="category-card" onclick="showProducts('Upcycled Clothing')">
-                <img src="upcycled_clothing.jpg" alt="Upcycled Clothing">
-                <h3>Upcycled Clothing</h3>
-                <p>Trendy fashion made from recycled materials.</p>
-            </div>
-            <div class="category-card" onclick="showProducts('More Products')">
-                <img src="more_products.jpg" alt="More Products">
-                <h3>More Products</h3>
-                <p>Other sustainable items you’ll love.</p>
-            </div>
+      <!-- PICKUP PANEL (Tabbed compact card) -->
+      <aside class="pickup-panel" id="pickup" aria-labelledby="pickup-heading">
+        <div class="pickup-header">
+          <h3 id="pickup-heading">Schedule a Pickup</h3>
+          <small>Choose the appropriate pickup type. We collect old clothes and materials for recycling/upcycling.</small>
         </div>
 
-        <diiv classs="product-list" id="productList">
-            <h3 id="productTitle"></h3>
-            <ul id="productsUl"></ul>
+        <!-- tabs -->
+        <div class="tab-row" role="tablist" aria-label="Pickup Types">
+          <button id="tab-general" class="tab active" role="tab" aria-selected="true" aria-controls="panel-general" onclick="switchPickup('general')">General Pickup</button>
+          <button id="tab-cotton" class="tab" role="tab" aria-selected="false" aria-controls="panel-cotton" onclick="switchPickup('cotton')">Pure Cotton Pickup</button>
         </div>
+
+        <!-- forms container -->
+        <div id="panels" style="margin-top:8px;">
+          <!-- General (default visible) -->
+          <form id="panel-general" role="tabpanel" aria-labelledby="tab-general" data-type="general"
+                data-endpoint="https://formspree.io/f/mdkwlagr">
+            <div class="form-grid">
+              <div>
+                <label for="name">Name</label>
+                <input id="name" name="name" type="text" placeholder="Your name" required>
+              </div>
+              <div>
+                <label for="email">Email</label>
+                <input id="email" name="_replyto" type="email" placeholder="name@example.com" required>
+              </div>
+
+              <div style="grid-column:1 / -1">
+                <label for="details">Pickup details (address, items)</label>
+                <textarea id="details" name="details" placeholder="Pickup location & what you want to give..." required></textarea>
+              </div>
+
+              <input type="hidden" name="_subject" value="EcoThreads General Pickup Request">
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn">Submit General Pickup</button>
+              <div class="form-success" id="formSuccessGeneral" role="status" aria-live="polite">Thanks — your general pickup request was received!</div>
+            </div>
+          </form>
+
+          <!-- Cotton (hidden) -->
+          <form id="panel-cotton" role="tabpanel" aria-labelledby="tab-cotton" data-type="cotton" style="display:none;"
+                data-endpoint="https://formspree.io/f/mblzadyw">
+            <div class="form-grid">
+              <div>
+                <label for="cname">Name</label>
+                <input id="cname" name="name" type="text" placeholder="Your name" required>
+              </div>
+              <div>
+                <label for="cemail">Email</label>
+                <input id="cemail" name="_replyto" type="email" placeholder="name@example.com" required>
+              </div>
+
+              <div style="grid-column:1 / -1">
+                <label for="cdetails">Pickup details (address, approx. weight, # of items)</label>
+                <textarea id="cdetails" name="details" placeholder="Address and how many pure cotton items (approx)..." required></textarea>
+              </div>
+
+              <div style="grid-column:1 / -1">
+                <label for="cottonNote">Any special notes (e.g. stained, ripped?)</label>
+                <input id="cottonNote" name="note" type="text" placeholder="Short note (optional)">
+              </div>
+
+              <input type="hidden" name="_subject" value="EcoThreads Pure Cotton Pickup Request">
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn">Submit Pure Cotton Pickup</button>
+              <div class="form-success" id="formSuccessCotton" role="status" aria-live="polite">Thanks — your pure cotton pickup request was received!</div>
+            </div>
+          </form>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Products / Categories -->
+    <section id="products" aria-label="Products">
+      <h2 style="text-align:center; color:var(--green); margin:4px 0 12px 0;">Buy Recycled Products</h2>
+
+      <div class="categories" id="categoriesGrid">
+        <div class="category-card" onclick="showProducts('Home Décors')">
+          <img src="home_decor.jpg" alt="Home Décors">
+          <div class="category-body">
+            <div>
+              <h3>Home Décors</h3>
+              <p>Eco-friendly decorations made from recycled fabrics and materials.</p>
+            </div>
+            <div><button class="btn" style="width:100%;">View</button></div>
+          </div>
+        </div>
+
+        <div class="category-card" onclick="showProducts('Bags & Accessories')">
+          <img src="bag_accessories.jpg" alt="Bags & Accessories">
+          <div class="category-body">
+            <div>
+              <h3>Bags & Accessories</h3>
+              <p>Upcycled totes, wallets and handmade accessories with character.</p>
+            </div>
+            <div><button class="btn" style="width:100%;">View</button></div>
+          </div>
+        </div>
+
+        <div class="category-card" onclick="showProducts('Upcycled Clothing')">
+          <img src="upcycled_clothing.jpg" alt="Upcycled Clothing">
+          <div class="category-body">
+            <div>
+              <h3>Upcycled Clothing</h3>
+              <p>Shirts, jackets and denim reimagined into fresh, wearable pieces.</p>
+            </div>
+            <div><button class="btn" style="width:100%;">View</button></div>
+          </div>
+        </div>
+
+        <div class="category-card" onclick="showProducts('More Products')">
+          <img src="more_products.jpg" alt="More Products">
+          <div class="category-body">
+            <div>
+              <h3>More Products</h3>
+              <p>Notebooks, plant holders and small sustainable gift items.</p>
+            </div>
+            <div><button class="btn" style="width:100%;">View</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-list" id="productList" style="display:none;">
+        <h3 id="productTitle" style="margin-top:18px; text-align:center;"></h3>
+        <div class="product-grid" id="productsUl"></div>
+      </div>
     </section>
+  </main>
 
-    <!-- Contact Section -->
-    <footer id="contact">
-        <h2>Contact Us</h2>
-        <p>Email: <a href="mailto:contact@ecothreads.com">contact@ecothreads.com</a></p>
-        <p>Phone: +91 9876543210</p>
-        <p>Address: 123 Eco Street, Sustainability City</p>
-    </footer>
+  <div class="modal" id="productModal" aria-hidden="true">
+    <div class="modal-inner" role="dialog" aria-modal="true">
+      <img id="modalImg" class="modal-img" src="" alt="">
+      <div class="modal-info">
+        <h3 id="modalTitle"></h3>
+        <p id="modalDesc">Handmade, sustainable and carefully upcycled. Contact us to order or schedule pickup for similar materials.</p>
+        <div style="margin-top:12px; display:flex; gap:8px;">
+          <button class="btn" onclick="closeModal()">Close</button>
+          <a id="mailtoLink" href="#" style="text-decoration:none"><button class="btn secondary">Contact</button></a>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <script>
-        // Schedule Pickup Form
-        const form = document.getElementById('pickupForm');
-        form.addEventListener('submit', function(e){
-            e.preventDefault();
-            alert('Thank you! Your pickup request has been submitted.');
-            form.reset();
-        });
+  <footer id="contact">
+    <h2 style="margin:0 0 6px 0">Contact Us</h2>
+    <p style="margin:0 0 6px 0">Email: <a href="mailto:contact@ecothreads.com">contact@ecothreads.com</a></p>
+    <p style="margin:0 0 6px 0">Phone: +91 9876543210</p>
+    <p style="margin:0">Address: 123 Eco Street, Sustainability City</p>
+  </footer>
 
-        // Product List with Images
-        const productsData = {
-            "Home Décors": [
-                {name: "Recycled cloth Frames", img: "prod1.jpg"},
-                {name: "fabric jewellery", img: "prod2.jpg"},
-                {name: "curtains and wall hangings", img: "prod3.jpg"}
-            ],
-            "Bags & Accessories": [
-                {name: "Upcycled Tote Bag", img: "prod4.webp"},
-                {name: "Wallet from Fabric Scraps", img: "prod5.webp"},
-                {name: "keychains", img: "prod6.webp"}
-            ],
-            "Upcycled Clothing": [
-                {name: "Shirts from Old Fabrics", img: "prod7.jpg"},
-                {name: "Patchwork Jackets", img: "prod8.jpg"},
-                {name: "Denim Upcycled Jeans", img: "prod91.jpg"}
-            ],
-            "More Products": [
-                {name: "Recycled Notebooks", img: "product10.jpg"},
-                {name: "Plant Holders", img: "product11.jpg"},
-                {name: "Sustainable Statioonery", img: "prod12.jpg"}
-            ]
-        };
+  <script>
+    const productsData = {
+      "Home Décors": [
+        {name: "Recycled cloth Frames", img: "prod1.jpg"},
+        {name: "fabric jewellery", img: "prod2.jpg"},
+        {name: "curtains and wall hangings", img: "prod3.jpg"}
+      ],
+      "Bags & Accessories": [
+        {name: "Upcycled Tote Bag", img: "prod4.webp"},
+        {name: "Wallet from Fabric Scraps", img: "prod5.webp"},
+        {name: "keychains", img: "prod6.webp"}
+      ],
+      "Upcycled Clothing": [
+        {name: "Shirts from Old Fabrics", img: "prod7.jpg"},
+        {name: "Patchwork Jackets", img: "prod8.jpg"},
+        {name: "Denim Upcycled Jeans", img: "prod91.jpg"}
+      ],
+      "More Products": [
+        {name: "Recycled Notebooks", img: "product10.jpg"},
+        {name: "Plant Holders", img: "product11.jpg"},
+        {name: "Sustainable Statioonery", img: "prod12.jpg"}
+      ]
+    };
 
-        function showProducts(category){
-            const productListDiv = document.getElementById('productList');
-            const productTitle = document.getElementById('productTitle');
-            const productsUl = document.getElementById('productsUl');
+    function switchPickup(tab){
+      const panelGeneral = document.getElementById('panel-general');
+      const panelCotton = document.getElementById('panel-cotton');
+      const tabGeneral = document.getElementById('tab-general');
+      const tabCotton = document.getElementById('tab-cotton');
 
-            productTitle.textContent = category;
-            productsUl.innerHTML = '';
-            productsData[category].forEach(item => {
-                const li = document.createElement('li');
-                li.innerHTML = `<img src="${item.img}" alt="${item.name}"><p>${item.name}</p>`;
-                productsUl.appendChild(li);
-            });
+      if(tab === 'cotton'){
+        panelGeneral.style.display = 'none';
+        panelCotton.style.display = 'block';
+        tabGeneral.classList.remove('active');
+        tabGeneral.setAttribute('aria-selected','false');
+        tabCotton.classList.add('active');
+        tabCotton.setAttribute('aria-selected','true');
+      } else {
+        panelGeneral.style.display = 'block';
+        panelCotton.style.display = 'none';
+        tabCotton.classList.remove('active');
+        tabCotton.setAttribute('aria-selected','false');
+        tabGeneral.classList.add('active');
+        tabGeneral.setAttribute('aria-selected','true');
+      }
+    }
 
-            productListDiv.style.display = 'block';
-            productListDiv.scrollIntoView({behavior: "smooth"});
+    async function submitToFormspree(formEl, successEl) {
+      const endpoint = formEl.dataset.endpoint;
+      if(!endpoint) { alert('Form endpoint not configured.'); return; }
+      const formData = new FormData(formEl);
+
+      try {
+        const response = await fetch(endpoint, {method:'POST', body:formData, headers:{'Accept':'application/json'}});
+        if(response.ok) {
+          successEl.style.display = 'inline-block';
+          setTimeout(()=> successEl.style.display = 'none', 3500);
+          formEl.reset();
+        } else {
+          const data = await response.json().catch(()=>null);
+          if(data && data.error) { alert('Error: ' + data.error); }
+          else { alert('Submission failed — please try again later.'); }
         }
-    </script>
+      } catch(err) { console.error(err); alert('Network error — please check your connection and try again.'); }
+    }
 
+    document.addEventListener('DOMContentLoaded', function(){
+      const formGeneral = document.getElementById('panel-general');
+      const successGeneral = document.getElementById('formSuccessGeneral');
+      formGeneral.addEventListener('submit', function(e){ e.preventDefault(); submitToFormspree(formGeneral, successGeneral); });
+
+      const formCotton = document.getElementById('panel-cotton');
+      const successCotton = document.getElementById('formSuccessCotton');
+      formCotton.addEventListener('submit', function(e){ e.preventDefault(); submitToFormspree(formCotton, successCotton); });
+
+      switchPickup('general');
+    });
+
+    function showProducts(category){
+      const productListDiv = document.getElementById('productList');
+      const productTitle = document.getElementById('productTitle');
+      const productsUl = document.getElementById('productsUl');
+
+      productTitle.textContent = category;
+      productsUl.innerHTML = '';
+      const list = productsData[category] || [];
+      list.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.innerHTML = `<img src="${item.img}" alt="${item.name}"><p>${item.name}</p>`;
+        card.addEventListener('click', ()=> openModal(item));
+        productsUl.appendChild(card);
+      });
+
+      productListDiv.style.display = 'block';
+      productListDiv.scrollIntoView({behavior: "smooth", block: "start"});
+    }
+
+    const modal = document.getElementById('productModal');
+    const modalImg = document.getElementById('modalImg');
+    const modalTitle = document.getElementById('modalTitle');
+    const mailtoLink = document.getElementById('mailtoLink');
+
+    function openModal(item){
+      modalImg.src = item.img;
+      modalImg.alt = item.name;
+      modalTitle.textContent = item.name;
+      mailtoLink.href = `mailto:contact@ecothreads.com?subject=Inquiry%20about%20${encodeURIComponent(item.name)}`;
+      modal.classList.add('open');
+      modal.setAttribute('aria-hidden','false');
+    }
+    function closeModal(){ modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); }
+    modal.addEventListener('click', (e)=>{ if(e.target === modal) closeModal(); });
+
+  </script>
 </body>
 </html>
