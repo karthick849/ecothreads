@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>EcoThreads</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
     :root{
       --green: #1e7a34;        /* Primary */
@@ -35,6 +36,19 @@
     nav ul{display:flex; gap:14px; margin:0; padding:0; list-style:none}
     nav a{ color:white; font-weight:600; text-decoration:none; font-size:14px; transition: 0.2s }
     nav a:hover{ opacity:0.85; }
+    
+    .logout-btn {
+      background-color: rgba(255, 255, 255, 0.2);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 14px;
+      transition: background-color 0.2s;
+    }
+    .logout-btn:hover {
+        background-color: rgba(255, 255, 255, 0.35);
+    }
+    
     @media(max-width:720px){ nav ul{display:none} }
 
     /* LAYOUT */
@@ -47,7 +61,7 @@
 
     .hero-card{
       background: linear-gradient(145deg,#ffffff,#f0fff5);
-      padding:28px; border-radius:var(--radius); box-shadow:0 10px 30px rgba(0,0,0,0.08);
+      padding:28px; border-radius:var(--radius); box-shadow:0 10px 30px rgba(0, 0, 0, 0.08);
     }
     .hero h1{ margin:0 0 10px 0; font-size:28px; color:var(--green) }
     .hero p{ margin:0 0 14px 0; color:var(--muted); line-height:1.7 }
@@ -161,23 +175,45 @@
     .modal-img{ width:46%; height:60vh; object-fit:cover; border-radius:8px }
     .modal-info{ width:54% }
     .modal-info h3{ margin:0 0 8px 0; color:var(--green) }
+    .modal-info p{ margin:0 }
     .close-btn{ background:#f1f1f1; border:none; padding:8px 10px; border-radius:8px; cursor:pointer }
 
+    /* Responsive adjustments for modal */
+    @media (max-width: 600px) {
+        .modal-inner {
+            flex-direction: column;
+            width: 90%;
+            padding: 1rem;
+        }
+        .modal-img, .modal-info {
+            width: 100%;
+            height: auto;
+        }
+        .modal-img {
+            max-height: 250px;
+        }
+    }
+    
     footer{ background:#111; color:#e0e0e0; padding:32px 16px; text-align:center; margin-top:28px }
     footer a{ color:#3ebd65; transition:0.2s; }
     footer a:hover{ opacity:0.85; }
-
   </style>
 </head>
 <body>
 
   <nav>
-    <div class="logo">EcoThreads</div>
-    <ul>
+    <a href="#home" class="logo">EcoThreads</a>
+    <ul id="mainNav">
       <li><a href="#home">Home</a></li>
       <li><a href="#pickup">Schedule Pickup</a></li>
       <li><a href="#products">Buy Products</a></li>
       <li><a href="#contact">Contact</a></li>
+      <li id="loginLink"><a href="login.html">Login</a></li>
+      
+      <li id="dashboardLink" style="display:none;"><a href="#">Dashboard Link</a></li>
+      <li id="logoutBtnContainer" style="display:none;">
+        <a href="#" class="logout-btn" onclick="logout()">Logout</a>
+      </li>
     </ul>
   </nav>
 
@@ -192,22 +228,18 @@
         </div>
       </div>
 
-      <!-- PICKUP PANEL (Tabbed compact card) -->
       <aside class="pickup-panel" id="pickup" aria-labelledby="pickup-heading">
         <div class="pickup-header">
           <h3 id="pickup-heading">Schedule a Pickup</h3>
           <small>Choose the appropriate pickup type. We collect old clothes and materials for recycling/upcycling.</small>
         </div>
 
-        <!-- tabs -->
         <div class="tab-row" role="tablist" aria-label="Pickup Types">
           <button id="tab-general" class="tab active" role="tab" aria-selected="true" aria-controls="panel-general" onclick="switchPickup('general')">General Pickup</button>
           <button id="tab-cotton" class="tab" role="tab" aria-selected="false" aria-controls="panel-cotton" onclick="switchPickup('cotton')">Pure Cotton Pickup</button>
         </div>
 
-        <!-- forms container -->
         <div id="panels" style="margin-top:8px;">
-          <!-- General (default visible) -->
           <form id="panel-general" role="tabpanel" aria-labelledby="tab-general" data-type="general"
                 data-endpoint="https://formspree.io/f/mdkwlagr">
             <div class="form-grid">
@@ -217,7 +249,7 @@
               </div>
               <div>
                 <label for="email">Email</label>
-                <input id="email" name="_replyto" type="email" placeholder="name@example.com" required>
+                <input id="email" name="_replyto" type="email" placeholder="name@example.com (Use customer@mail.com to test)" required>
               </div>
 
               <div style="grid-column:1 / -1">
@@ -234,7 +266,6 @@
             </div>
           </form>
 
-          <!-- Cotton (hidden) -->
           <form id="panel-cotton" role="tabpanel" aria-labelledby="tab-cotton" data-type="cotton" style="display:none;"
                 data-endpoint="https://formspree.io/f/mblzadyw">
             <div class="form-grid">
@@ -244,7 +275,7 @@
               </div>
               <div>
                 <label for="cemail">Email</label>
-                <input id="cemail" name="_replyto" type="email" placeholder="name@example.com" required>
+                <input id="cemail" name="_replyto" type="email" placeholder="name@example.com (Use customer@mail.com to test)" required>
               </div>
 
               <div style="grid-column:1 / -1">
@@ -269,13 +300,12 @@
       </aside>
     </div>
 
-    <!-- Products / Categories -->
     <section id="products" aria-label="Products">
       <h2 style="text-align:center; color:var(--green); margin:4px 0 12px 0;">Buy Recycled Products</h2>
 
       <div class="categories" id="categoriesGrid">
         <div class="category-card" onclick="showProducts('Home Décors')">
-          <img src="home_decor.jpg" alt="Home Décors">
+          <img src="home_decor.jpg" alt="Home Décors" onerror="this.onerror=null;this.src='https://placehold.co/300x170/3ebd65/ffffff?text=Home';">
           <div class="category-body">
             <div>
               <h3>Home Décors</h3>
@@ -286,7 +316,7 @@
         </div>
 
         <div class="category-card" onclick="showProducts('Bags & Accessories')">
-          <img src="bag_accessories.jpg" alt="Bags & Accessories">
+          <img src="bag_accessories.jpg" alt="Bags & Accessories" onerror="this.onerror=null;this.src='https://placehold.co/300x170/3ebd65/ffffff?text=Bags';">
           <div class="category-body">
             <div>
               <h3>Bags & Accessories</h3>
@@ -297,7 +327,7 @@
         </div>
 
         <div class="category-card" onclick="showProducts('Upcycled Clothing')">
-          <img src="upcycled_clothing.jpg" alt="Upcycled Clothing">
+          <img src="upcycled_clothing.jpg" alt="Upcycled Clothing" onerror="this.onerror=null;this.src='https://placehold.co/300x170/3ebd65/ffffff?text=Clothes';">
           <div class="category-body">
             <div>
               <h3>Upcycled Clothing</h3>
@@ -308,7 +338,7 @@
         </div>
 
         <div class="category-card" onclick="showProducts('More Products')">
-          <img src="more_products.jpg" alt="More Products">
+          <img src="more_products.jpg" alt="More Products" onerror="this.onerror=null;this.src='https://placehold.co/300x170/3ebd65/ffffff?text=More';">
           <div class="category-body">
             <div>
               <h3>More Products</h3>
@@ -339,6 +369,9 @@
       </div>
     </div>
   </div>
+
+  <div id="messageBox" style="display:none; position:fixed; top:20px; right:20px; z-index:10000; padding:15px; border-radius:10px;"></div>
+
 
   <footer id="contact">
     <h2 style="margin:0 0 6px 0">Contact Us</h2>
@@ -371,6 +404,51 @@
       ]
     };
 
+    /**
+     * LOGIC TO HANDLE DYNAMIC NAVIGATION BAR
+     * This checks the role/status and updates the navigation links.
+     */
+    function updateNavForUser() {
+        const role = sessionStorage.getItem('currentEcoUserRole');
+        const loginLink = document.getElementById('loginLink');
+        const dashboardLinkContainer = document.getElementById('dashboardLink');
+        const dashboardLink = dashboardLinkContainer ? dashboardLinkContainer.querySelector('a') : null;
+        const logoutBtnContainer = document.getElementById('logoutBtnContainer');
+
+        if (role) {
+            // User is logged in
+            loginLink.style.display = 'none';
+            dashboardLinkContainer.style.display = 'block';
+            logoutBtnContainer.style.display = 'block';
+
+            if (role === 'admin') {
+                if (dashboardLink) {
+                    dashboardLink.textContent = 'Admin Dashboard';
+                    dashboardLink.href = 'admin-dashboard.html';
+                }
+            } else if (role === 'customer') {
+                if (dashboardLink) {
+                    dashboardLink.textContent = 'My Pickups'; // New option for customers
+                    dashboardLink.href = 'customer-dashboard.html';
+                }
+            }
+        } else {
+            // User is logged out
+            loginLink.style.display = 'block';
+            dashboardLinkContainer.style.display = 'none';
+            logoutBtnContainer.style.display = 'none';
+        }
+    }
+
+    function logout() {
+        sessionStorage.removeItem('currentEcoUserEmail');
+        sessionStorage.removeItem('currentEcoUserRole');
+        // Redirect to the main page which will update the nav
+        window.location.href = 'index.html'; 
+    }
+    
+    // --- Existing Functions Below ---
+
     function switchPickup(tab){
       const panelGeneral = document.getElementById('panel-general');
       const panelCotton = document.getElementById('panel-cotton');
@@ -394,26 +472,106 @@
       }
     }
 
+    /**
+     * Saves the pickup request data to localStorage
+     * This is the function that makes data visible on both dashboards.
+     */
+    function savePickupToLocalStorage(formEl) {
+        const formData = new FormData(formEl);
+        const pickupType = formEl.dataset.type === 'general' ? 'General' : 'Pure Cotton';
+        
+        // Determine which fields to pull based on the form
+        const email = formData.get('_replyto');
+        const name = formData.get('name');
+        const details = formData.get('details');
+        
+        const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        
+        const newPickup = {
+            type: pickupType,
+            name: name,
+            email: email.toLowerCase(), // Use lowercase email for consistent filtering
+            details: details,
+            date: date,
+            status: 'Pending Approval' // Initial status
+        };
+
+        try {
+            // Retrieve existing pickups, or initialize an empty array
+            const pickups = JSON.parse(localStorage.getItem('ecoThreadsPickups') || '[]');
+            pickups.push(newPickup);
+            localStorage.setItem('ecoThreadsPickups', JSON.stringify(pickups));
+            console.log('Pickup saved to localStorage:', newPickup);
+        } catch (error) {
+            console.error('Error saving to localStorage:', error);
+            showMessageBox('Could not save pickup locally.', 'error');
+        }
+    }
+
+
     async function submitToFormspree(formEl, successEl) {
       const endpoint = formEl.dataset.endpoint;
-      if(!endpoint) { alert('Form endpoint not configured.'); return; }
+      if(!endpoint) { 
+        console.error('Form endpoint not configured.'); 
+        showMessageBox('Form endpoint not configured.', 'error');
+        return; 
+      }
       const formData = new FormData(formEl);
 
       try {
+        // We simulate the network call AND save the data locally for the prototype.
         const response = await fetch(endpoint, {method:'POST', body:formData, headers:{'Accept':'application/json'}});
+        
         if(response.ok) {
+          // *** CRITICAL: Save data to local storage on successful form submission ***
+          savePickupToLocalStorage(formEl);
+          
           successEl.style.display = 'inline-block';
           setTimeout(()=> successEl.style.display = 'none', 3500);
           formEl.reset();
         } else {
           const data = await response.json().catch(()=>null);
-          if(data && data.error) { alert('Error: ' + data.error); }
-          else { alert('Submission failed — please try again later.'); }
+          if(data && data.error) { showMessageBox('Error submitting form: ' + data.error, 'error'); }
+          else { showMessageBox('Submission failed — please try again later.', 'error'); }
         }
-      } catch(err) { console.error(err); alert('Network error — please check your connection and try again.'); }
+      } catch(err) { 
+        console.error(err); 
+        showMessageBox('Network error — please check your connection and try again.', 'error'); 
+      }
     }
 
+    // Custom Message Box function to replace alert()
+    function showMessageBox(message, type='info') {
+        let box = document.getElementById('messageBox');
+        if (!box) {
+            console.error("Message box element not found.");
+            return;
+        }
+
+        box.style.display = 'block';
+
+        if (type === 'error') {
+            box.style.backgroundColor = '#f8d7da';
+            box.style.color = '#721c24';
+            box.style.border = '1px solid #f5c6cb';
+        } else {
+            box.style.backgroundColor = '#d4edda';
+            box.style.color = '#155724';
+            box.style.border = '1px solid #c3e6cb';
+        }
+
+        box.textContent = message;
+
+        setTimeout(() => {
+            box.style.display = 'none';
+        }, 5000);
+    }
+    // End Custom Message Box
+
     document.addEventListener('DOMContentLoaded', function(){
+      // Initialize the dynamic navigation bar
+      updateNavForUser();
+      
       const formGeneral = document.getElementById('panel-general');
       const successGeneral = document.getElementById('formSuccessGeneral');
       formGeneral.addEventListener('submit', function(e){ e.preventDefault(); submitToFormspree(formGeneral, successGeneral); });
@@ -436,7 +594,7 @@
       list.forEach(item => {
         const card = document.createElement('div');
         card.className = 'product-card';
-        card.innerHTML = `<img src="${item.img}" alt="${item.name}"><p>${item.name}</p>`;
+        card.innerHTML = `<img src="${item.img}" alt="${item.name}" onerror="this.onerror=null;this.src='https://placehold.co/100x100/3ebd65/ffffff?text=Eco';"><p>${item.name}</p>`;
         card.addEventListener('click', ()=> openModal(item));
         productsUl.appendChild(card);
       });
@@ -453,6 +611,7 @@
     function openModal(item){
       modalImg.src = item.img;
       modalImg.alt = item.name;
+      modalImg.onerror = function(){this.onerror=null;this.src='https://placehold.co/300x400/3ebd65/ffffff?text=EcoThread%20Product';};
       modalTitle.textContent = item.name;
       mailtoLink.href = `mailto:contact@ecothreads.com?subject=Inquiry%20about%20${encodeURIComponent(item.name)}`;
       modal.classList.add('open');
