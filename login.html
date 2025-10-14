@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login to EcoThreads</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        :root {
+            --green: #1e7a34;
+            --green-2: #3ebd65;
+            --bg: #f4f7f6;
+            --radius: 0.75rem;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bg), #ffffff 60%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .login-card {
+            background-color: white;
+            border-radius: var(--radius);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            border-top: 5px solid var(--green);
+        }
+
+        .input-field {
+            padding: 12px;
+            border-radius: 0.5rem;
+            border: 1px solid #ddd;
+            width: 100%;
+            margin-top: 4px;
+            margin-bottom: 1rem;
+            transition: border 0.2s;
+        }
+        .input-field:focus {
+            border-color: var(--green-2);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(62, 189, 101, 0.2);
+        }
+
+        .btn {
+            background: linear-gradient(90deg, var(--green) 0%, var(--green-2) 100%);
+            border: none;
+            color: white;
+            padding: 12px 18px;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-weight: 700;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(62, 189, 101, 0.3);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(62, 189, 101, 0.4);
+        }
+
+        .error-message {
+            background-color: #fee2e2;
+            color: #991b1b;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+        .back-link {
+            color: var(--green);
+            font-weight: 600;
+            margin-top: 1.5rem;
+            display: block;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .back-link:hover {
+            color: var(--green-2);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">EcoThreads Portal</h1>
+        <p class="text-gray-500 mb-6">Sign in to manage your requests or the dashboard.</p>
+        
+        <!-- Login Form -->
+        <form id="loginForm">
+            <!-- Message Box for errors -->
+            <div id="errorMessage" class="error-message hidden"></div>
+            
+            <div class="text-left">
+                <label for="email" class="text-sm font-semibold text-gray-700">Email Address</label>
+                <input type="email" id="email" class="input-field" placeholder="Enter your email" required>
+            </div>
+            
+            <div class="text-left">
+                <label for="password" class="text-sm font-semibold text-gray-700">Password</label>
+                <input type="password" id="password" class="input-field" placeholder="Enter your password" required>
+            </div>
+
+            <button type="submit" class="btn">Login</button>
+        </form>
+
+        <p class="text-sm text-gray-500 mt-4 pt-4 border-t border-gray-100">
+            <span class="font-bold">Test Credentials:</span><br>
+            Admin: `admin@ecothreads.com` / `admin123`<br>
+            Customer: `customer@mail.com` / `customer123`
+        </p>
+
+        <a href="index.html" class="back-link">← Back to Main Site</a>
+    </div>
+
+    <script>
+        // Define the valid users and their roles/passwords
+        const validUsers = {
+            'admin@ecothreads.com': { password: 'admin123', role: 'admin' },
+            'customer@mail.com': { password: 'customer123', role: 'customer' }
+            // Add more test users here if needed
+        };
+
+        const form = document.getElementById('loginForm');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const errorMessageDiv = document.getElementById('errorMessage');
+
+        function showMessage(message) {
+            errorMessageDiv.textContent = message;
+            errorMessageDiv.classList.remove('hidden');
+        }
+
+        function clearMessage() {
+            errorMessageDiv.textContent = '';
+            errorMessageDiv.classList.add('hidden');
+        }
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            clearMessage();
+
+            const email = emailInput.value.toLowerCase().trim();
+            const password = passwordInput.value.trim();
+
+            const user = validUsers[email];
+
+            if (user && user.password === password) {
+                // Successful login!
+                
+                // Store authentication info in sessionStorage (for persistence across tabs/refresh)
+                sessionStorage.setItem('currentEcoUserEmail', email);
+                sessionStorage.setItem('currentEcoUserRole', user.role);
+                
+                // Redirect back to the main page (index.html), which will then handle the dashboard link
+                window.location.href = 'index.html'; 
+
+            } else {
+                showMessage('Invalid email or password. Please try again.');
+            }
+        });
+
+        // Check if a user is already logged in on page load
+        (function checkExistingSession() {
+            const role = sessionStorage.getItem('currentEcoUserRole');
+            if (role) {
+                // If logged in, redirect them to the main page (which will then point to their dashboard)
+                window.location.href = 'index.html';
+            }
+        })();
+    </script>
+</body>
+</html>

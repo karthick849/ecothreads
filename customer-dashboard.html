@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoThreads Customer Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        :root {
+            --green: #1e7a34;
+            --green-2: #3ebd65;
+            --bg: #f4f7f6;
+            --radius: 0.75rem;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+        }
+        /* Dashboard Header */
+        header {
+            background: linear-gradient(90deg, var(--green) 0%, var(--green-2) 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logout-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+        .logout-btn:hover {
+            background-color: rgba(255, 255, 255, 0.35);
+        }
+
+        /* Status Colors */
+        /* These classes mirror the admin dashboard for consistency */
+        .status-pending-approval { background-color: #fef3c7; color: #92400e; }
+        .status-scheduled { background-color: #dbeafe; color: #1e40af; }
+        .status-completed { background-color: #d1fae5; color: #065f46; }
+        .status-rejected { background-color: #fee2e2; color: #991b1b; }
+
+        /* Request Card Styling */
+        .request-card {
+            background-color: white;
+            border-radius: var(--radius);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            padding: 1.5rem;
+            border-left: 5px solid var(--green);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1 class="text-2xl font-extrabold tracking-wide">EcoThreads Customer Portal</h1>
+        <div class="flex items-center space-x-4">
+            <span id="welcomeMessage" class="text-sm font-light hidden sm:inline"></span>
+            <button onclick="logout()" class="logout-btn">Logout</button>
+        </div>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-8">
+        <h2 class="text-3xl font-bold text-gray-800 mb-2">Your Pickup Requests</h2>
+        <p class="text-gray-600 mb-8">View the status of the material pickup requests you've submitted.</p>
+
+        <div id="requestsList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="col-span-full text-center py-12 text-gray-500 request-card">Loading your data...</div>
+        </div>
+
+        <div id="messageBox" class="fixed bottom-4 right-4 p-4 rounded-lg shadow-lg text-white font-semibold hidden transition duration-300 z-50" role="alert"></div>
+
+    </main>
+
+    <script>
+        let userEmail = ''; // Global variable for the logged-in user's email
+
+        // --- Utility Functions ---
+
+        function showMessage(message, type = 'success') {
+            const box = document.getElementById('messageBox');
+            box.textContent = message;
+            box.classList.remove('hidden');
+
+            // Set colors based on type
+            box.style.backgroundColor = type === 'success' ? '#3ebd65' : '#ef4444';
+            
+            setTimeout(() => {
+                box.classList.add('hidden');
+            }, 3000);
+        }
+
+        // --- Authentication & Data Loading ---
+
+        function checkAuthAndLoad() {
+            const storedEmail = sessionStorage.getItem('currentEcoUserEmail');
+            const storedRole = sessionStorage.getItem('currentEcoUserRole');
+            
+            // Check if user is logged in AND their role is 'customer'
+            if (!storedEmail || storedRole !== 'customer') {
+                // Not authenticated as a customer, redirect to login
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            userEmail = storedEmail;
+            document.getElementById('welcomeMessage').textContent = `Logged in as: ${userEmail}`;
+
+            loadAndFilterPickups();
+        }
+
+        function loadAndFilterPickups() {
+            const listContainer = document.getElementById('requestsList');
+            listContainer.innerHTML = ''; // Clear loading message
+
+            try {
+                const allPickups = JSON.parse(localStorage.getItem('ecoThreadsPickups') || '[]');
+                
+                // Filter requests by the logged-in user's email (case-insensitive match)
+                const userPickups = allPickups.filter(p => p.email.toLowerCase() === userEmail.toLowerCase());
+                
+                renderPickups(userPickups);
+
+            } catch (error) {
+                console.error("Error loading data from localStorage:", error);
+                listContainer.innerHTML = '<div class="col-span-full text-center py-12 text-red-500 request-card">Error loading data. Please check your browser console.</div>';
+                showMessage("Could not load requests due to a storage error.", 'error');
+            }
+        }
+
+        // --- Card Rendering ---
+
+        function renderPickups(data) {
+            const listContainer = document.getElementById('requestsList');
+            listContainer.innerHTML = ''; // Clear list
+
+            if (data.length === 0) {
+                listContainer.innerHTML = '<div class="col-span-full text-center py-12 text-gray-500 request-card">You have not submitted any pickup requests yet.</div>';
+                return;
+            }
+
+            // Sort by Date (newest first)
+            data.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            data.forEach((item, index) => {
+                // Format status for CSS class (e.g., "Pending Approval" -> "status-pending-approval")
+                const statusClass = `status-${item.status.toLowerCase().replace(/\s/g, '-')}`;
+                
+                const card = document.createElement('div');
+                card.className = 'request-card flex flex-col space-y-3';
+                card.innerHTML = `
+                    <div class="flex justify-between items-center pb-2 border-b border-gray-100">
+                        <h3 class="text-lg font-bold text-gray-800">${item.type} Pickup</h3>
+                        <span class="text-sm font-semibold px-3 py-1 rounded-full ${statusClass}">${item.status}</span>
+                    </div>
+
+                    <div class="text-sm">
+                        <p class="font-medium text-gray-700">Date Submitted:</p>
+                        <p class="text-gray-600">${item.date}</p>
+                    </div>
+
+                    <div class="text-sm">
+                        <p class="font-medium text-gray-700">Your Name:</p>
+                        <p class="text-gray-600">${item.name}</p>
+                    </div>
+
+                    <div class="text-sm">
+                        <p class="font-medium text-gray-700">Details / Address:</p>
+                        <p class="text-gray-600 whitespace-pre-wrap">${item.details}</p>
+                    </div>
+                `;
+                listContainer.appendChild(card);
+            });
+        }
+
+        // --- Logout Functionality (Clears session and redirects to index) ---
+
+        function logout() {
+            sessionStorage.removeItem('currentEcoUserEmail');
+            sessionStorage.removeItem('currentEcoUserRole');
+            showMessage("Logging out...", 'info');
+            // Redirect to index.html (which will display the logged-out nav)
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 500);
+        }
+
+        // --- Initialization ---
+        window.onload = checkAuthAndLoad;
+    </script>
+</body>
+</html>
